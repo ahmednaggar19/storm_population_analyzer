@@ -22,7 +22,7 @@ public class PopulationAnalyzer {
 		config.put("inputFile", "input.txt");
 		config.setDebug(true);
 		config.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
-		
+		config.registerMetricsConsumer(org.apache.storm.metric.LoggingMetricsConsumer.class, 1);
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line-reader-spout", new LineReaderSpout());
 		builder.setBolt("age-processing-bolt", new AgeProcessingBolt()).fieldsGrouping("line-reader-spout", new Fields("Age"));

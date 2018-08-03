@@ -5,6 +5,7 @@
  */
 package populationanalyzer.bolts;
 
+import org.apache.storm.metric.api.CountMetric;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichBolt;
@@ -23,6 +24,9 @@ import java.util.logging.Logger;
 
 public class GenderProcessingBolt implements IRichBolt{
 	private OutputCollector collector;
+
+	private CountMetric countMetric;
+
     /** Predefined Map Keys. */
     private final String WOMEN = "Female";
     private final String MEN = "Male";
@@ -37,11 +41,14 @@ public class GenderProcessingBolt implements IRichBolt{
 	public void prepare(Map stormConf, TopologyContext context,
 			OutputCollector collector) {
 		this.collector = collector;
-        initializeGenderMap();
+		initializeMetric();
+        context.registerMetric("execute_count", countMetric, 10);
+		initializeGenderMap();
 	}
         
 	@Override
 	public void execute(Tuple input) {
+        countMetric.incr();
         String gender = input.getString(4);
         updateGenderMap(gender);
         collector.emit(new Values(gender, input.getInteger(6)));
@@ -61,6 +68,7 @@ public class GenderProcessingBolt implements IRichBolt{
                     out.write("Count of " + key + " : " + genderMap.get(key));
                     out.newLine();
                 }
+                out.write("Metric : " + (long) countMetric.getValueAndReset());
                 out.close();
             } catch (IOException ex) {
                        Logger.getLogger(GenderProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,6 +78,11 @@ public class GenderProcessingBolt implements IRichBolt{
 	public Map<String, Object> getComponentConfiguration() {
 		return null;
 	}
+
+	/**.*/
+	private void initializeMetric() {
+        this.countMetric = new CountMetric();
+    }
 
     /**Initializes Gender Map an insert supported ranges (keys) .*/
     private void initializeGenderMap() {
