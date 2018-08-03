@@ -11,6 +11,7 @@ import org.apache.storm.LocalCluster;
 import org.apache.storm.topology.TopologyBuilder;
 import populationanalyzer.bolts.AgeIncomeProcessingBolt;
 import populationanalyzer.bolts.AgeProcessingBolt;
+import populationanalyzer.bolts.GenderProcessingBolt;
 import populationanalyzer.bolts.IncomeProcessingBolt;
 import populationanalyzer.spout.LineReaderSpout;
 
@@ -25,7 +26,7 @@ public class PopulationAnalyzer {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line-reader-spout", new LineReaderSpout());
 		builder.setBolt("age-processing-bolt", new AgeProcessingBolt()).fieldsGrouping("line-reader-spout", new Fields("Age"));
-		//builder.setBolt("word-counter", new WordCounterBolt()).shuffleGrouping("word-spitter");
+		builder.setBolt("gender-processing-bolt", new GenderProcessingBolt()).shuffleGrouping("line-reader-spout");
 		builder.setBolt("income-processing-bolt", new IncomeProcessingBolt()).shuffleGrouping("line-reader-spout");
 		builder.setBolt("age-income-processing-bolt", new AgeIncomeProcessingBolt()).shuffleGrouping("income-processing-bolt").shuffleGrouping("age-processing-bolt");
 
