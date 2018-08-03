@@ -1,0 +1,4 @@
+worker-id: ed63592f-eb85-494e-8d09-51c290f210a2
+logs.users: []
+logs.groups: []
+topology.submitter.user: hduser
