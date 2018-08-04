@@ -19,6 +19,7 @@ import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import populationanalyzer.TimeTracker;
 
 public class AgeIncomeProcessingBolt implements IRichBolt{
 	private OutputCollector collector;
@@ -54,16 +55,19 @@ public class AgeIncomeProcessingBolt implements IRichBolt{
 
 	@Override
 	public void cleanup() {
-            BufferedWriter out;
-            try {
-                out = new BufferedWriter(new FileWriter("output.txt", true));
-                out.newLine();
-                out.write("Adult 10k-50k : " + ageIncomeMap.get("adult-10k-50k"));
-                out.newLine();
-                out.close();
-            } catch (IOException ex) {
-                Logger.getLogger(AgeIncomeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            System.out.println("Execution Time : " + TimeTracker.getCurrentRelativeMillis(System.currentTimeMillis()));
+//            BufferedWriter out;
+//            try {
+//                out = new BufferedWriter(new FileWriter("output.txt", true));
+//                out.newLine();
+//                out.write("Adult 10k-50k : " + ageIncomeMap.get("adult-10k-50k"));
+//                out.newLine();
+//                out.write("Execution Time : " + TimeTracker.getCurrentRelativeMillis(System.currentTimeMillis()));
+//                out.newLine();
+//                out.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(AgeIncomeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 	}
 	@Override
 	public Map<String, Object> getComponentConfiguration() {

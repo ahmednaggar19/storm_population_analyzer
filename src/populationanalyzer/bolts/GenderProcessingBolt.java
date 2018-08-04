@@ -61,18 +61,19 @@ public class GenderProcessingBolt implements IRichBolt{
 
 	@Override
 	public void cleanup() {
-            BufferedWriter out;
-            try {
-                out = new BufferedWriter(new FileWriter("output.txt", true));
-                for (String key : genderMap.keySet()) {
-                    out.write("Count of " + key + " : " + genderMap.get(key));
-                    out.newLine();
-                }
-                out.write("Metric : " + (long) countMetric.getValueAndReset());
-                out.close();
-            } catch (IOException ex) {
-                       Logger.getLogger(GenderProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+//            BufferedWriter out;
+//            try {
+//                out = new BufferedWriter(new FileWriter("output.txt", true));
+//                for (String key : genderMap.keySet()) {
+//                    out.write("Count of " + key + " : " + genderMap.get(key));
+//                    out.newLine();
+//                }
+//                out.write("Metric : " + (long) countMetric.getValueAndReset());
+//                out.close();
+//            } catch (IOException ex) {
+//                       Logger.getLogger(GenderProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 	}
 	@Override
 	public Map<String, Object> getComponentConfiguration() {

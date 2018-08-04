@@ -8,6 +8,7 @@ package populationanalyzer.bolts;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import populationanalyzer.bolts.utils.Range;
 
 public class IncomeProcessingBolt implements IRichBolt{
 	private OutputCollector collector;
@@ -35,20 +37,29 @@ public class IncomeProcessingBolt implements IRichBolt{
     Map<String, Integer> incomeMap;
     /** Integer denoting average age **/
     private Integer averageIncome = 0;
+
+    private Range range;
+
 	@Override
 	public void prepare(Map stormConf, TopologyContext context,
 			OutputCollector collector) {
 		this.collector = collector;
-                initializeIncomeMap();
+        initializeIncomeMap();
+        ArrayList<Integer> rangePoints = new ArrayList<>();
+        rangePoints.add(1000);
+        rangePoints.add(10000);
+        rangePoints.add(50000);
+        rangePoints.add(100000);
+        range = new Range(rangePoints);
 	}
 
 	@Override
 	public void execute(Tuple input) {
-                String incomeTuble = input.getString(2);
-		Integer income = Integer.parseInt(incomeTuble);
-                averageIncome = (averageIncome + income) / 2;  
-                updateIncomeMap(income);
-                collector.emit(new Values(income, input.getInteger(6)));
+		Integer income = input.getInteger(2);
+        averageIncome = (averageIncome + income) / 2;
+        updateIncomeMap(income);
+        range.updateRangeCount(income);
+        collector.emit(new Values(income, input.getInteger(6)));
 		collector.ack(input);
 	}
 	@Override
@@ -58,20 +69,21 @@ public class IncomeProcessingBolt implements IRichBolt{
 
 	@Override
 	public void cleanup() {
-            BufferedWriter out;
-            try {
-                out = new BufferedWriter(new FileWriter("output.txt", true));
-                out.newLine();
-                out.write("Income Average : " + averageIncome.toString());
-                out.newLine();
-                for (String key : incomeMap.keySet()) {
-                    out.write("Count of " + key + " : " + incomeMap.get(key));
-                    out.newLine();
-                }
-                    out.close();
-            } catch (IOException ex) {
-                       Logger.getLogger(IncomeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            BufferedWriter out;
+//            try {
+//                out = new BufferedWriter(new FileWriter("output.txt", true));
+//                out.newLine();
+//                out.write("Income Average : " + averageIncome.toString());
+//                out.newLine();
+//                Map<String, Integer> rangeMap= range.getMap();
+//                for (String key : rangeMap.keySet()) {
+//                    out.write("Count of " + key + " : " + rangeMap.get(key));
+//                    out.newLine();
+//                }
+//                    out.close();
+//            } catch (IOException ex) {
+//                       Logger.getLogger(IncomeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 	}
 	@Override
 	public Map<String, Object> getComponentConfiguration() {

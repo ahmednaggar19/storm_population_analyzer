@@ -15,27 +15,32 @@ import populationanalyzer.bolts.GenderProcessingBolt;
 import populationanalyzer.bolts.IncomeProcessingBolt;
 import populationanalyzer.spout.LineReaderSpout;
 
+import java.sql.Time;
+
 public class PopulationAnalyzer {
 
 	public static void main(String[] args) throws Exception{
 		Config config = new Config();
-		config.put("inputFile", "input.txt");
+		config.put("inputFile", "inputFile.txt");
+
 		config.setDebug(true);
 		config.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
 		config.registerMetricsConsumer(org.apache.storm.metric.LoggingMetricsConsumer.class, 1);
+
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line-reader-spout", new LineReaderSpout());
 		builder.setBolt("age-processing-bolt", new AgeProcessingBolt()).fieldsGrouping("line-reader-spout", new Fields("Age"));
 		builder.setBolt("gender-processing-bolt", new GenderProcessingBolt()).shuffleGrouping("line-reader-spout");
 		builder.setBolt("income-processing-bolt", new IncomeProcessingBolt()).shuffleGrouping("line-reader-spout");
 		builder.setBolt("age-income-processing-bolt", new AgeIncomeProcessingBolt()).shuffleGrouping("income-processing-bolt").shuffleGrouping("age-processing-bolt");
-
 		long before = System.currentTimeMillis();
+		TimeTracker.setStartTime(before);
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("PopulationAnalyzer", config, builder.createTopology());
-		Thread.sleep(10000);
-		long after = System.currentTimeMillis();
-		System.out.println("\n\n\n\n\nTime : " + (after - before) + " ms");
+		Thread.sleep(30000);
+//		long after = System.currentTimeMillis();
+//		System.out.println("\n\n\n\n\nTime : " + (after - before) + " ms");
+//		cluster.getTopologyInfo().get_executors().get(0).get_stats().
 		cluster.shutdown();
 	}
 

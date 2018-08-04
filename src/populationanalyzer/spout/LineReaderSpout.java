@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -24,6 +25,7 @@ public class LineReaderSpout implements IRichSpout {
 	private TopologyContext context;
 
 	private Integer tupleId = 0;
+	private Random random;
         
         
         
@@ -31,6 +33,7 @@ public class LineReaderSpout implements IRichSpout {
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
 		try {
+			this.random = new Random();
 			this.context = context;
 			this.fileReader = new FileReader(conf.get("inputFile").toString());
 		} catch (FileNotFoundException e) {
@@ -50,17 +53,22 @@ public class LineReaderSpout implements IRichSpout {
 
 			}
 		}
-		String str;
-		BufferedReader reader = new BufferedReader(fileReader);
-		try {
-			while ((str = reader.readLine()) != null) {
-				this.collector.emit(fetchTupleFields(str));
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("Error reading typle", e);
-		} finally {
-			completed = true;
+
+		for (int i = 0; i < 420000; i++) {
+			this.collector.emit(getRandomTupleFields());
 		}
+
+//		String str;
+//		BufferedReader reader = new BufferedReader(fileReader);
+//		try {
+//			while ((str = reader.readLine()) != null) {
+//				this.collector.emit(fetchTupleFields(str));
+//			}
+//		} catch (Exception e) {
+//			throw new RuntimeException("Error reading typle", e);
+//		} finally {
+//			completed = true;
+//		}
 
 	}
 	@Override
@@ -106,5 +114,10 @@ public class LineReaderSpout implements IRichSpout {
 		String[] fields = line.split(",");
 		return new Values(fields[0], fields[1], fields[2], fields[3],
 				fields[4], fields[5], tupleId++);
+	}
+
+	private Values getRandomTupleFields () {
+		return new Values("Ahmed", random.nextInt(100), random.nextInt(100000),
+				"ahmed@gmail.com", (random.nextInt(2) == 0 ? "Male" : "Female"), "Egypt", tupleId++);
 	}
 }

@@ -46,11 +46,10 @@ public class AgeProcessingBolt implements IRichBolt{
         
 	@Override
 	public void execute(Tuple input) {
-                String ageTuple=input.getString(1);
-		Integer age = Integer.parseInt(ageTuple);
-                averageAge = (averageAge + age) / 2;  
-                updateAgeMap(age);
-                collector.emit(new Values(age, input.getInteger(6)));
+		Integer age = input.getInteger(1);
+        averageAge = (averageAge + age) / 2;
+        updateAgeMap(age);
+        collector.emit(new Values(age, input.getInteger(6)));
 		collector.ack(input);
 	}
 	@Override
@@ -60,19 +59,19 @@ public class AgeProcessingBolt implements IRichBolt{
 
 	@Override
 	public void cleanup() {
-            BufferedWriter out;
-            try {
-                out = new BufferedWriter(new FileWriter("output.txt", true));
-                out.write("Age Average : " + averageAge.toString());
-                out.newLine();
-                for (String key : ageMap.keySet()) {
-                    out.write("Count of " + key + " : " + ageMap.get(key));
-                    out.newLine();
-                }
-                out.close();
-            } catch (IOException ex) {
-                       Logger.getLogger(AgeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            BufferedWriter out;
+//            try {
+//                out = new BufferedWriter(new FileWriter("output.txt", true));
+//                out.write("Age Average : " + averageAge.toString());
+//                out.newLine();
+//                for (String key : ageMap.keySet()) {
+//                    out.write("Count of " + key + " : " + ageMap.get(key));
+//                    out.newLine();
+//                }
+//                out.close();
+//            } catch (IOException ex) {
+//                       Logger.getLogger(AgeProcessingBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 	}
 	@Override
 	public Map<String, Object> getComponentConfiguration() {
