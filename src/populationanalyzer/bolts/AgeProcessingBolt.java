@@ -103,7 +103,7 @@ public class AgeProcessingBolt implements IRichBolt{
         } else {
             ageRange = ELDER;
         }
-        count = ageMap.get(ageRange);
-        ageMap.put(ageRange, count + 1);
+//        count = ageMap.get(ageRange);
+//        ageMap.put(ageRange, count + 1);
     }
 }

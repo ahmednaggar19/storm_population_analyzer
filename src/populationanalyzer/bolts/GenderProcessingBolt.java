@@ -50,7 +50,7 @@ public class GenderProcessingBolt implements IRichBolt{
 	public void execute(Tuple input) {
         countMetric.incr();
         String gender = input.getString(4);
-        updateGenderMap(gender);
+//        updateGenderMap(gender);
         collector.emit(new Values(gender, input.getInteger(6)));
 		collector.ack(input);
 	}

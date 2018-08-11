@@ -45,7 +45,7 @@ public class AgeIncomeProcessingBolt implements IRichBolt{
 
 	@Override
 	public void execute(Tuple input) {
-        updateTuplesTrackerMap(input);
+//        updateTuplesTrackerMap(input);
         collector.ack(input);
 	}
 	@Override

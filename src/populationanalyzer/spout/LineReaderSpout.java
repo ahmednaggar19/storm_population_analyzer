@@ -18,6 +18,8 @@ import org.apache.storm.topology.IRichSpout;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
+import populationanalyzer.TimeTracker;
+
 public class LineReaderSpout implements IRichSpout {
 	private SpoutOutputCollector collector;
 	private FileReader fileReader;
@@ -25,17 +27,22 @@ public class LineReaderSpout implements IRichSpout {
 	private TopologyContext context;
 
 	private Integer tupleId = 0;
+
 	private Random random;
-        
-        
-        
+
+	private BufferedReader reader;
+
+
+
 	@Override
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
+		this.random = new Random();
 		try {
 			this.random = new Random();
 			this.context = context;
 			this.fileReader = new FileReader(conf.get("inputFile").toString());
+			this.reader = new BufferedReader(fileReader);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Error reading file "
 					+ conf.get("inputFile"));
@@ -46,29 +53,16 @@ public class LineReaderSpout implements IRichSpout {
 
 	@Override
 	public void nextTuple() {
-		if (completed) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-
-			}
-		}
-
-		for (int i = 0; i < 420000; i++) {
-			this.collector.emit(getRandomTupleFields());
-		}
-
-//		String str;
-//		BufferedReader reader = new BufferedReader(fileReader);
-//		try {
-//			while ((str = reader.readLine()) != null) {
-//				this.collector.emit(fetchTupleFields(str));
-//			}
-//		} catch (Exception e) {
-//			throw new RuntimeException("Error reading typle", e);
-//		} finally {
-//			completed = true;
-//		}
+		if (tupleId <= 420000) {
+            String str;
+            try {
+                if ((str = reader.readLine()) != null) {
+                    this.collector.emit(fetchTupleFields(str));
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error reading typle", e);
+            }
+        }
 
 	}
 	@Override
@@ -112,10 +106,13 @@ public class LineReaderSpout implements IRichSpout {
 	 * */
 	private Values fetchTupleFields (String line) {
 		String[] fields = line.split(",");
-		return new Values(fields[0], fields[1], fields[2], fields[3],
+		return new Values(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2]), fields[3],
 				fields[4], fields[5], tupleId++);
 	}
 
+	/** Generates random fields with some fixed attributes and adds the tuple id field.
+	 * @return fields array of randomly generated fields.
+	 * */
 	private Values getRandomTupleFields () {
 		return new Values("Ahmed", random.nextInt(100), random.nextInt(100000),
 				"ahmed@gmail.com", (random.nextInt(2) == 0 ? "Male" : "Female"), "Egypt", tupleId++);

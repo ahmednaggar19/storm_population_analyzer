@@ -107,7 +107,7 @@ public class IncomeProcessingBolt implements IRichBolt{
         } else {
             incomeRange = K50_100K;
         }
-        count = incomeMap.get(incomeRange);
-        incomeMap.put(incomeRange, count + 1);
+//        count = incomeMap.get(incomeRange);
+//        incomeMap.put(incomeRange, count + 1);
     }
 }
